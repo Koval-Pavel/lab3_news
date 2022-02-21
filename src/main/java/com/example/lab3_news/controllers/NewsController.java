@@ -1,8 +1,9 @@
 package com.example.lab3_news.controllers;
 
 import com.example.lab3_news.handler.handlerJSON;
+import com.example.lab3_news.services.GetValue;
 import com.example.lab3_news.services.News;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.ResourceAccessException;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -28,15 +30,15 @@ import static com.example.lab3_news.handler.handlerJSON.resultJSON;
 public class NewsController {
 
     /**
+     * Bean for GetValue class
+     */
+    @Autowired
+    private GetValue getValue;
+
+    /**
      * Object of News Services
      */
     private News news = new News();
-
-    /**
-     * Start value of news that could be described
-     */
-    @Value("${some.quantityOfNews}")
-    public static String quantityOfNews = "2";
 
     /**
      * List of choosen countrys for News
@@ -70,7 +72,7 @@ public class NewsController {
         }
         try {
             for (int i = 0; i < country.size(); i++) {
-                json.add(news.getJSONorig(country.get(i), category.get(i)));
+                json.add(news.getJSONorig(country.get(i), category.get(i), getValue.getApikey()));
             }
         } catch (ResourceAccessException e) {
             log.warn(ACCES);
@@ -91,7 +93,7 @@ public class NewsController {
                         check = true;
                     } else {
                         check = false;
-                        Thread.sleep(10); //millisecond pause between each check
+                        Thread.sleep(10);
                         break;
                     }
                 }
@@ -100,7 +102,7 @@ public class NewsController {
             for (int i = 0; i < country.size(); i++) {
                 listJSON.add(json.get(i).get());
             }
-            handlerJSON.parseAndWriteJson(json.get(0).get(), file); // - zapis' v docx, сделать для резалта
+            handlerJSON.parseAndWriteJson(listJSON, file);
         } catch (InterruptedException e) {
             log.warn(INTER);
             e.printStackTrace();
@@ -108,6 +110,6 @@ public class NewsController {
             e.printStackTrace();
             log.warn(EXEC);
         }
-        return resultJSON(listJSON).toString();
+        return resultJSON(listJSON, getValue.getQuantityOfNews()).toString();
     }
 }

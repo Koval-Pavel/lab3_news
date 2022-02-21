@@ -14,7 +14,6 @@ import java.util.ArrayList;
 
 import static com.example.lab3_news.Lab3NewsApplication.log;
 import static com.example.lab3_news.controllers.NewsController.countryGlob;
-import static com.example.lab3_news.controllers.NewsController.quantityOfNews;
 
 
 /**
@@ -40,9 +39,7 @@ public class handlerJSON {
      * @param resultJson JSON formed from few selected news category
      * @param file file for write
      */
-    public static void parseAndWriteJson(String resultJson, File file) {
-        JSONObject newsJsonObject = new JSONObject(resultJson);
-        JSONArray articlesArray = (JSONArray) newsJsonObject.get("articles");
+    public static void parseAndWriteJson(ArrayList<String> resultJson, File file) {
 
         XWPFDocument document = new XWPFDocument();
         XWPFParagraph paragraph = document.createParagraph();
@@ -51,32 +48,36 @@ public class handlerJSON {
         FileOutputStream fout;
         try {
             fout = new FileOutputStream(file.getPath());
-            for (int i = 0; i < articlesArray.length(); i++) {
-                try {
-                JSONObject currentAtrticle = (JSONObject) articlesArray.get(i);
-                    int imageType = XWPFDocument.PICTURE_TYPE_JPEG;
-                    int width = 200;
-                    int height = 250;
-                    String imageFileName = "";
-                    run.setText(currentAtrticle.get("title").toString());
-                    run.addBreak();
-                    URL imageURL = new URL(currentAtrticle.get("urlToImage").toString());
-                    InputStream is = imageURL.openStream();
-                    run.addPicture(is, imageType, imageFileName, Units.toEMU(width), Units.toEMU(height));
-                    run.addBreak();
-                    is.close();
-                    run.setText(currentAtrticle.get("description").toString());
-                    run.addBreak();
-                    run.setText(currentAtrticle.get("author").toString());
-                    run.addBreak();
-                    run.setText(currentAtrticle.get("url").toString());
-                    run.addBreak();
-                    run.setText("---------------------------------------------------------------------");
-                    run.addBreak();
-                } catch (Exception e) {
-                    run.setText(INDOC);
-                    infoMessage = FILE;
-                    log.warn(infoMessage);
+            for (int j = 0; j < resultJson.size(); j++) {
+                JSONObject newsJsonObject = new JSONObject(resultJson.get(j));
+                JSONArray articlesArray = (JSONArray) newsJsonObject.get("articles");
+                for (int i = 0; i < articlesArray.length(); i++) {
+                    try {
+                        JSONObject currentAtrticle = (JSONObject) articlesArray.get(i);
+                        int imageType = XWPFDocument.PICTURE_TYPE_JPEG;
+                        int width = 200;
+                        int height = 250;
+                        String imageFileName = "";
+                        run.setText(currentAtrticle.get("title").toString());
+                        run.addBreak();
+                        URL imageURL = new URL(currentAtrticle.get("urlToImage").toString());
+                        InputStream is = imageURL.openStream();
+                        run.addPicture(is, imageType, imageFileName, Units.toEMU(width), Units.toEMU(height));
+                        run.addBreak();
+                        is.close();
+                        run.setText(currentAtrticle.get("description").toString());
+                        run.addBreak();
+                        run.setText(currentAtrticle.get("author").toString());
+                        run.addBreak();
+                        run.setText(currentAtrticle.get("url").toString());
+                        run.addBreak();
+                        run.setText("---------------------------------------------------------------------");
+                        run.addBreak();
+                    } catch (Exception e) {
+                        run.setText(INDOC);
+                        infoMessage = FILE;
+                        log.warn(infoMessage);
+                    }
                 }
             }
             document.write(fout);
@@ -93,7 +94,7 @@ public class handlerJSON {
      * @param listJSON List of JSON for accumulation
      * @return result JSON Object
      */
-    public static JSONObject resultJSON (ArrayList<String> listJSON) {
+    public static JSONObject resultJSON (ArrayList<String> listJSON, String quantityOfNews) {
         int countryCalc = 0;
         JSONObject jsonResult = new JSONObject();
         for (String jsonItem : listJSON) {

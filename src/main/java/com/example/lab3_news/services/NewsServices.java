@@ -5,6 +5,6 @@ import java.util.concurrent.Future;
 
 public interface NewsServices {
 
-    Future<String> getJSONorig(String country, String categoru);
+    Future<String> getJSONorig(String country, String category, String apikey);
 
 }

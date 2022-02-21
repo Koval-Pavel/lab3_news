@@ -1,6 +1,5 @@
 package com.example.lab3_news.services;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -15,11 +14,7 @@ import java.util.concurrent.Future;
  */
 @Service
 @EnableAsync
-public class News implements NewsServices{
-
-    /** field with api key for News Api */
-    @Value("${some.apikey}")
-    private final String apiKey = "&apiKey=f9f1f528312a41cca4e2fada6bf47247";
+public class News implements NewsServices {
 
     /** field with link for News Api */
     private final String URI = "https://newsapi.org/v2/top-headlines?country=";
@@ -28,11 +23,12 @@ public class News implements NewsServices{
      * Method that form request to News Api and get answer with JSON
      * @param country list of country for requested News
      * @param category list of category for requested News
+     * @param apiKey Api key from application.properties
      * @return JSON with answer from API (news)
      */
     @Async
     @Override
-    public Future<String>  getJSONorig(String country, String category) {
+    public Future<String>  getJSONorig(String country, String category, String apiKey) {
         String uri;
         String result = null;
             if (!country.equals("def")) {
